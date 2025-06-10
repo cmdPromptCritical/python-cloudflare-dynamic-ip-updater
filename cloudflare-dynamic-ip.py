@@ -118,6 +118,7 @@ def set_up_logging() -> None:
 if __name__ == "__main__":
     set_up_logging()
 
-    while True:
-        run()
-        time.sleep(PING_INTERVAL_MINUTES*60)
+    if (PING_INTERVAL_MINUTES):
+        while True:
+            run()
+            time.sleep(PING_INTERVAL_MINUTES*60)
