@@ -8,6 +8,7 @@ CLOUDFLARE_ZONES = {
     }
 }
 
+# get a list of records from https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records
 CLOUDFLARE_RECORDS = [
     {
         "id": "{record_id}",

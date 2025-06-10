@@ -1,11 +1,12 @@
 import json
 import logging
 from logging.handlers import RotatingFileHandler
+import time
 
 import requests
 
 from config.config import CLOUDFLARE_ZONES, LOGGING_LEVEL, LAST_IP_FILE, CURRENT_IP_API, CLOUDFLARE_RECORDS, \
-    LOG_FILE
+    LOG_FILE, PING_INTERVAL_MINUTES
 
 logger = logging.getLogger(__name__)
 
@@ -117,4 +118,6 @@ def set_up_logging() -> None:
 if __name__ == "__main__":
     set_up_logging()
 
-    run()
+    while True:
+        run()
+        time.sleep(PING_INTERVAL_MINUTES*60)
