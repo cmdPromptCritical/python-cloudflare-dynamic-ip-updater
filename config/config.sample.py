@@ -23,3 +23,5 @@ LOG_FILE = "./cloudflare-dynamic-ip.log"
 LOGGING_LEVEL = logging.INFO
 
 CURRENT_IP_API = "https://api.ipify.org"
+
+PING_INTERVAL_MINUTES = 5
