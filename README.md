@@ -1,5 +1,5 @@
 # Python script to manage dynamic IP addresses in Cloudflare DNS
-
+(this fork runs in the background and pings for ip changes based on interval defined in config file)
 Can be scheduled to run periodically using Cron jobs.
 
 ## Introduction
