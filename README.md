@@ -81,7 +81,7 @@ This repository now includes functions to retrieve the current IP address from C
 - `get_ip_from_cloudflare_record()` - Get IP directly with zone ID, record name, and API token
 - `get_ip_from_existing_record()` - Get IP using existing configuration format
 
-For detailed documentation and examples, see [GET_IP_FUNCTIONS.md](GET_IP_FUNCTIONS.md).
+For detailed documentation and examples, see [GET_IP_FUNCTIONS.md](docs/GET_IP_FUNCTIONS.md).
 
 **Quick Example:**
 ```python
