@@ -151,26 +151,66 @@ def run() -> None:
     logger.info("Running...")
 
     last_ip = get_last_ip()
-    current_ip = get_current_ip()
+    current_ip = get_current_ip().strip()
 
-    if current_ip == last_ip:
-        logger.info("IP has not changed. Exiting...")
-
-        return
-
-    any_failures = False
-
+    # Check if IP has changed from last saved IP
+    ip_changed_from_last = current_ip != last_ip
+    
+    # Check if IP differs from any DNS records
+    ip_differs_from_dns = False
+    records_to_update = []
+    
     for record in CLOUDFLARE_RECORDS:
+        dns_record_ip = get_ip_from_existing_record(record)
+        
+        if dns_record_ip is None:
+            logger.warning(f"Could not retrieve current IP from DNS record {record['name']}, will update anyway")
+            records_to_update.append(record)
+            ip_differs_from_dns = True
+        elif dns_record_ip.strip() != current_ip:
+            logger.info(f"DNS record {record['name']} has different IP: {dns_record_ip} vs current {current_ip}")
+            records_to_update.append(record)
+            ip_differs_from_dns = True
+        else:
+            logger.info(f"DNS record {record['name']} already has correct IP: {dns_record_ip}")
+
+    # Only proceed with updates if IP has changed from last saved OR differs from DNS records
+    if not ip_changed_from_last and not ip_differs_from_dns:
+        logger.info("IP has not changed from last saved IP and matches all DNS records. Exiting...")
+        return
+    
+    if ip_changed_from_last:
+        logger.info(f"IP changed from last saved: {last_ip} -> {current_ip}")
+    
+    if ip_differs_from_dns:
+        logger.info(f"IP differs from DNS records, updating {len(records_to_update)} record(s)")
+    
+    # Update only the records that need updating
+    any_failures = False
+    updated_records = []
+
+    for record in records_to_update:
+        logger.info(f"Updating record: {record['name']}")
         result = update_record(record, current_ip)
 
-        if not result:
+        if result:
+            updated_records.append(record)
+            # Verify the update by checking the DNS record again
+            verification_ip = get_ip_from_existing_record(record)
+            if verification_ip and verification_ip.strip() == current_ip:
+                logger.info(f"✓ Update verified for {record['name']}: {verification_ip}")
+            else:
+                logger.warning(f"Update verification failed for {record['name']}: expected {current_ip}, got {verification_ip}")
+        else:
             any_failures = True
+            logger.error(f"Failed to update record: {record['name']}")
             break
 
-    if not any_failures:
+    if not any_failures and updated_records:
         update_last_ip(current_ip)
-
-        logger.info("All records updated successfully. Exiting...")
+        logger.info(f"Successfully updated {len(updated_records)} record(s). Exiting...")
+    elif not updated_records:
+        logger.info("No records needed updating. Exiting...")
     else:
         logger.error("Failed to update some records. Exiting...")
 

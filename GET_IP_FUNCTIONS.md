@@ -126,6 +126,42 @@ The functions include comprehensive error handling:
 
 All errors are logged using the existing logging configuration.
 
+## Enhanced run() Function
+
+The main `run()` function has been enhanced to use these IP retrieval functions for more intelligent update detection:
+
+### New Behavior:
+1. **Dual IP Checking**: Compares current IP against both:
+   - Last saved IP (existing behavior)
+   - Current DNS record IP (new functionality)
+
+2. **Selective Updates**: Only updates records that actually need updating:
+   - Checks each DNS record individually
+   - Skips records that already have the correct IP
+   - Reduces unnecessary API calls
+
+3. **Update Verification**: After each update:
+   - Re-checks the DNS record to verify the update succeeded
+   - Logs verification results
+   - Provides better error detection
+
+4. **Enhanced Logging**: Provides detailed information about:
+   - Which records need updating and why
+   - Verification results for each update
+   - Summary of actions taken
+
+### Update Triggers:
+The script will update DNS records if **either** condition is true:
+- Current external IP ≠ last saved IP, **OR**
+- Current external IP ≠ any DNS record IP
+
+### Benefits:
+- **Reduced API Usage**: Fewer unnecessary update calls
+- **Better Accuracy**: Handles corrupted/missing last IP files
+- **Fault Tolerance**: Continues with other records if one fails
+- **Verification**: Confirms updates were successful
+- **Detailed Monitoring**: Better logging for troubleshooting
+
 ## Integration Notes
 
 These functions integrate seamlessly with the existing codebase:
@@ -133,3 +169,4 @@ These functions integrate seamlessly with the existing codebase:
 - Compatible with existing `CLOUDFLARE_ZONES` and `CLOUDFLARE_RECORDS` configuration
 - Follow the same error handling patterns
 - Use the official Cloudflare Python SDK for reliable API access
+- Enhanced `run()` function maintains backward compatibility
