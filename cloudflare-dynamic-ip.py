@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 import time
 
 import requests
+import cloudflare
 
 from config.config import CLOUDFLARE_ZONES, LOGGING_LEVEL, LAST_IP_FILE, CURRENT_IP_API, CLOUDFLARE_RECORDS, \
     LOG_FILE, PING_INTERVAL_MINUTES
@@ -74,6 +75,76 @@ def get_current_ip() -> str:
     logger.info("Current IP: {}".format(ip))
 
     return ip
+
+
+def get_ip_from_cloudflare_record(zone_id: str, record_name: str, api_token: str) -> str | None:
+    """
+    Get the current IP address from a Cloudflare DNS record.
+    
+    Args:
+        zone_id (str): The Cloudflare zone ID
+        record_name (str): The DNS record name (e.g., 'example.com' or 'subdomain.example.com')
+        api_token (str): The Cloudflare API token with Zone:Read permissions
+    
+    Returns:
+        str | None: The IP address from the DNS record, or None if not found or error occurred
+    """
+    try:
+        # Initialize Cloudflare client
+        cf = cloudflare.Cloudflare(api_token=api_token)
+        
+        # Get DNS records for the zone
+        records = cf.dns.records.list(zone_id=zone_id, name=record_name, type="A")
+        
+        if not records.result:
+            logger.warning(f"No A record found for {record_name} in zone {zone_id}")
+            return None
+        
+        # Get the first A record (there should typically be only one)
+        record = records.result[0]
+        ip_address = record.content
+        
+        logger.info(f"Retrieved IP from Cloudflare DNS record {record_name}: {ip_address}")
+        return ip_address
+        
+    except Exception as e:
+        logger.error(f"Failed to get IP from Cloudflare DNS record {record_name}: {str(e)}")
+        return None
+
+
+def get_ip_from_existing_record(record_config: dict) -> str | None:
+    """
+    Get the current IP address from a Cloudflare DNS record using existing configuration.
+    
+    Args:
+        record_config (dict): Record configuration from CLOUDFLARE_RECORDS with keys:
+                             - id: record ID
+                             - zone_id: zone ID
+                             - name: record name
+    
+    Returns:
+        str | None: The IP address from the DNS record, or None if not found or error occurred
+    """
+    try:
+        zone_id = record_config["zone_id"]
+        record_name = record_config["name"]
+        
+        # Get zone configuration
+        if zone_id not in CLOUDFLARE_ZONES:
+            logger.error(f"Zone {zone_id} not found in CLOUDFLARE_ZONES configuration")
+            return None
+        
+        zone_config = CLOUDFLARE_ZONES[zone_id]
+        api_token = zone_config["token"]
+        
+        return get_ip_from_cloudflare_record(zone_id, record_name, api_token)
+        
+    except KeyError as e:
+        logger.error(f"Missing required key in record configuration: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Failed to get IP from existing record configuration: {str(e)}")
+        return None
 
 
 def run() -> None:
