@@ -211,7 +211,7 @@ def run() -> None:
         logger.info(f"Successfully updated {len(updated_records)} record(s). Exiting...")
     elif not updated_records:
         logger.info("No records needed updating. Exiting...")
-    else:
+s    else:
         logger.error("Failed to update some records. Exiting...")
 
 
