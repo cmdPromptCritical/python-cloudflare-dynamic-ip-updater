@@ -194,13 +194,15 @@ def run() -> None:
         result = update_record(record, current_ip)
 
         if result:
-            updated_records.append(record)
             # Verify the update by checking the DNS record again
             verification_ip = get_ip_from_existing_record(record)
             if verification_ip and verification_ip.strip() == current_ip:
                 logger.info(f"✓ Update verified for {record['name']}: {verification_ip}")
+                updated_records.append(record)
             else:
-                logger.warning(f"Update verification failed for {record['name']}: expected {current_ip}, got {verification_ip}")
+                any_failures = True
+                logger.error(f"Update verification failed for {record['name']}: expected {current_ip}, got {verification_ip}")
+                break
         else:
             any_failures = True
             logger.error(f"Failed to update record: {record['name']}")
