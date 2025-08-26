@@ -213,7 +213,7 @@ def run() -> None:
         logger.info(f"Successfully updated {len(updated_records)} record(s). Exiting...")
     elif not updated_records:
         logger.info("No records needed updating. Exiting...")
-s    else:
+    else:
         logger.error("Failed to update some records. Exiting...")
 
 
@@ -222,7 +222,7 @@ def set_up_logging() -> None:
 
     formatter = logging.Formatter(fmt="%(asctime)s %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
-    handler = RotatingFileHandler(filename=LOG_FILE, mode="a", maxBytes=209 * 90, backupCount=2)
+    handler = RotatingFileHandler(filename=LOG_FILE, mode="a", maxBytes=1000000, backupCount=2)
     handler.setFormatter(formatter)
     logger.setLevel(LOGGING_LEVEL)
     logger.addHandler(handler)
