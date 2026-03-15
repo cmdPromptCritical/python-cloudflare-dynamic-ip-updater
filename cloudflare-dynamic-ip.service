@@ -1,0 +1,14 @@
+[Unit]
+Description=Cloudflare Dynamic IP Updater
+After=network.target
+
+[Service]
+User=richard
+Group=richard
+WorkingDirectory=/home/richard/prod/python-cloudflare-dynamic-ip-updater
+ExecStartPre=/bin/sleep 60
+ExecStart=/home/richard/.venv/bin/python /home/richard/prod/python-cloudflare-dynamic-ip-updater/cloudflare-dynamic-ip.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
