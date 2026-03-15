@@ -47,13 +47,28 @@ python cloudflare-dynamic-ip.py
 
 It should generate a log file called `cloudflare-dynamic-ip.log` in the same directory.
 
-## Usage
+## Domain Management
 
-Run the script:
+To make managing your subdomains easier, you can use the `domain_manager.py` script. This CLI tool allows you to view, add, and remove domains/subdomains from your update list without manually editing the config file.
 
-```shell
-python cloudflare-dynamic-ip.py
-```
+It also automatically fetches the necessary Cloudflare Record IDs for you.
+
+### Using the Domain Manager
+
+1. Activate your virtual environment:
+   ```shell
+   source /home/richard/.venv/bin/activate
+   ```
+
+2. Run the tool:
+   ```shell
+   python domain_manager.py
+   ```
+
+3. Follow the menu options to:
+   - **List subscribed domains**: See which records are currently being updated.
+   - **Add new domain/subdomain**: Input the Zone ID and the subdomain name (e.g., `blog.example.com`). The script will fetch the Record ID and update your config.
+   - **Remove domain/subdomain**: Choose a record to remove from the update list.
 
 ## Cron
 
